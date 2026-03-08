@@ -490,6 +490,150 @@
       .page-title { font-size: 2rem; }
       .page-nav { flex-direction: column; gap: 16px; }
     }
+
+    /* ── Article Overlay ── */
+    #article-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+    }
+
+    #article-overlay-bg {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.3);
+      backdrop-filter: blur(2px);
+    }
+
+    #article-panel {
+      position: absolute;
+      top: 0; right: 0; bottom: 0;
+      width: min(720px, 100vw);
+      background: #fff;
+      overflow-y: auto;
+      padding: 40px 52px 80px;
+      animation: slideIn 0.28s ease;
+    }
+
+    @keyframes slideIn {
+      from { transform: translateX(40px); opacity: 0; }
+      to   { transform: translateX(0);    opacity: 1; }
+    }
+
+    #article-close {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 36px;
+      padding: 7px 14px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: #fff;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    #article-close:hover { background: #f4f4f4; color: var(--text); }
+
+    #article-loading {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      padding: 16px 0;
+    }
+
+    /* Markdown rendered content */
+    #article-body h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 2rem;
+      font-weight: 400;
+      letter-spacing: -0.3px;
+      margin-bottom: 20px;
+      line-height: 1.25;
+    }
+
+    #article-body h2 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.35rem;
+      font-weight: 400;
+      margin: 36px 0 12px;
+    }
+
+    #article-body h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin: 24px 0 8px;
+    }
+
+    #article-body p {
+      font-size: 0.95rem;
+      line-height: 1.75;
+      color: #2a2a2a;
+      margin-bottom: 16px;
+    }
+
+    #article-body ul, #article-body ol {
+      padding-left: 22px;
+      margin-bottom: 16px;
+    }
+
+    #article-body li {
+      font-size: 0.95rem;
+      line-height: 1.7;
+      color: #2a2a2a;
+      margin-bottom: 4px;
+    }
+
+    #article-body a { color: #1a1a1a; text-decoration: underline; text-underline-offset: 3px; }
+    #article-body strong { font-weight: 600; }
+
+    #article-body code {
+      background: #f2f2f2;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.88em;
+    }
+
+    #article-body pre {
+      background: #f5f5f5;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px 18px;
+      overflow-x: auto;
+      margin-bottom: 20px;
+    }
+
+    #article-body pre code { background: none; padding: 0; font-size: 0.88rem; }
+
+    #article-body blockquote {
+      border-left: 3px solid var(--border);
+      padding-left: 16px;
+      margin: 0 0 16px;
+      color: var(--text-muted);
+    }
+
+    #article-body hr { border: none; border-top: 1px solid var(--border); margin: 32px 0; }
+
+    #article-body table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+      margin-bottom: 20px;
+    }
+
+    #article-body th, #article-body td {
+      border: 1px solid var(--border);
+      padding: 8px 12px;
+      text-align: left;
+    }
+
+    #article-body th { background: #f7f7f7; font-weight: 600; }
+
+    @media (max-width: 600px) {
+      #article-panel { padding: 28px 20px 60px; }
+    }
   </style>
 </head>
 <body>
@@ -713,7 +857,7 @@
         </a>
         -->
 
-        <a href="articles/blockbee.md" class="article-card">
+        <a href="#" onclick="openArticle(event, 'articles/blockbee.md')" class="article-card">
           <div class="article-info">
             <div class="article-title">BlockBee Review: Easy Crypto Payments for Your Website</div>
             <div class="article-desc">A detailed look at BlockBee's payment platform, covering features, supported cryptocurrencies, real-time conversion, and how it compares for affiliate-focused webmasters.</div>
@@ -729,18 +873,27 @@
         </a>
       </div>
 
-      <div class="portfolio-hint">
-        <strong style="font-weight:600; color: var(--text);">How to add an article:</strong><br/>
-        1. Create a <code>.md</code> file in an <code>articles/</code> folder (e.g. <code>articles/seo-review-paypal.md</code>)<br/>
-        2. Copy the <code>&lt;a href="..."&gt;</code> block from the comment above, update the path, title and description<br/>
-        3. Remove the placeholder <code>&lt;div class="portfolio-empty"&gt;</code> once you have at least one article
-      </div>
+
     </div>
 
   </div><!-- /page-portfolio -->
 
+  <!-- ═══════════════ ARTICLE OVERLAY ═══════════════ -->
+  <div id="article-overlay" style="display:none;">
+    <div id="article-overlay-bg" onclick="closeArticle()"></div>
+    <div id="article-panel">
+      <button id="article-close" onclick="closeArticle()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        Back to Portfolio
+      </button>
+      <div id="article-loading" style="display:none;">Loading…</div>
+      <div id="article-body"></div>
+    </div>
+  </div>
+
 </div><!-- /page -->
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
 <script>
   function switchPage(page, btn) {
     document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
@@ -763,6 +916,38 @@
       el.style.animationDelay = (i * 0.07) + 's';
     });
   }
+
+  async function openArticle(event, path) {
+    event.preventDefault();
+    const overlay  = document.getElementById('article-overlay');
+    const body     = document.getElementById('article-body');
+    const loading  = document.getElementById('article-loading');
+
+    body.innerHTML = '';
+    loading.style.display = 'block';
+    overlay.style.display = 'block';
+    document.body.style.overflow = 'hidden';
+
+    try {
+      const res = await fetch(path);
+      if (!res.ok) throw new Error('Not found');
+      const text = await res.text();
+      body.innerHTML = marked.parse(text);
+    } catch (e) {
+      body.innerHTML = '<p style="color:#999; font-size:0.9rem;">Could not load the article. Make sure the <code>.md</code> file is in the <code>articles/</code> folder.</p>';
+    } finally {
+      loading.style.display = 'none';
+    }
+  }
+
+  function closeArticle() {
+    document.getElementById('article-overlay').style.display = 'none';
+    document.body.style.overflow = '';
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeArticle();
+  });
 </script>
 </body>
 </html>
